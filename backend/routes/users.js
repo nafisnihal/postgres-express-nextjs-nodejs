@@ -1,6 +1,7 @@
 const express = require("express");
 const prisma = require("../prismaClient");
 const bcrypt = require("bcrypt");
+const { generateToken } = require("../utils/jwt");
 
 const router = express.Router();
 
@@ -24,12 +25,15 @@ router.post("/register", async (req, res) => {
 
     const newUser = await prisma.user.create({
       data: { username, password: hashedPassword },
-      select: { id: true, username: true, createdAt: true }, // Only return safe fields
     });
 
-    res
-      .status(201)
-      .json({ message: "User registered successfully", user: newUser });
+    const token = generateToken(newUser);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+      user: { id: newUser.id, username: newUser.username },
+    });
   } catch (err) {
     console.error("Registration error:", err);
     res.status(500).json({ error: "Internal server error" });
@@ -55,19 +59,20 @@ router.post("/login", async (req, res) => {
     if (!isPasswordValid)
       return res.status(401).json({ error: "Invalid credentials" });
 
-    // Don't send back the password
-    const { password: _, ...userWithoutPassword } = user;
+    const token = generateToken(user);
 
-    res
-      .status(200)
-      .json({ message: "Login successful", user: userWithoutPassword });
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: { id: user.id, username: user.username },
+    });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// GET /api/users
+// GET /api/users (Optional public list — no token required)
 router.get("/", async (req, res) => {
   try {
     const users = await prisma.user.findMany({
