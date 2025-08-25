@@ -23,8 +23,8 @@ export default function TodoApp() {
       <h1 className="text-2xl font-semibold mb-4">Your Todos</h1>
       <ul className="space-y-2">
         {todos.map((todo) => (
-          <li key={todo.id} className="p-2 bg-gray-100 rounded">
-            {todo.title}
+          <li key={todo.id} className="p-2 border rounded ">
+            <p>{todo.title}</p>
           </li>
         ))}
       </ul>
