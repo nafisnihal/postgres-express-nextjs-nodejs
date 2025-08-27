@@ -1,4 +1,5 @@
 import Header from "@/components/layout/Header";
+import { AuthProvider } from "@/lib/AuthContext";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -23,8 +24,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <main className="flex-1">{children}</main>
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );
